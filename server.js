@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', true)
 
-const DB_HOST = 'mongodb+srv://Admin:MMeZqlqDHfJEM8pL@cluster0.mecagh1.mongodb.net/contacts?retryWrites=true&w=majority'
+const {DB_HOST} = process.env;
+
 mongoose.connect(DB_HOST)
   .then(() => {
     app.listen(3000);
@@ -14,5 +15,3 @@ mongoose.connect(DB_HOST)
     console.log(error.message);
     process.exit(1)
 })
-
-
