@@ -4,7 +4,12 @@ const schemas = require('../schemas');
 
 const getListContacts = async (req, res, next) => {
   try {
-    const result = await Contact.find();
+    const { _id: owner } = req.user;
+    const { page = 1, limit = 20, favorite } = req.query;
+    console.log(page, limit, favorite);
+    const skip = (page - 1) * limit;
+    const result = favorite === undefined ? await Contact.find({ owner }, {}, { skip, limit }) : await Contact.find({ owner, favorite }, {}, { skip, limit });
+    console.log(result)
     res.status(200).json(result)
   } catch (error) {
     next(error)
@@ -32,7 +37,8 @@ const addNewContact = async (req, res, next) => {
       console.log(error)
       throw HttpError(400, error.message)
     }
-    const result = await Contact.create(newContact);
+    const { _id: owner } = req.user;
+    const result = await Contact.create({...newContact, owner});
     res.status(201).json(result)
   } catch (error) {
     next(error)
