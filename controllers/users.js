@@ -38,7 +38,6 @@ const login = async (req, res, next) => {
     try {
       const { email, password } = req.body;
         const user = await User.findOne({ email });
-        console.log(SECRET_KEY)
 
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
@@ -87,9 +86,28 @@ const logout = async (req, res, next) => {
     }
 }
 
+
+const updateUser = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { error } = updateUserSchema.validate(req.body);
+    if (error) {
+      throw HttpError(400, error.message)
+    }
+    const result = await User.findByIdAndUpdate(_id, req.body, {new: true});
+    if (!result) {
+      throw HttpError(404, 'Not Found')
+    }
+    res.status(200).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   register,
     login,
     getCurrent,
-        logout
+  logout,
+        updateUser
 };
