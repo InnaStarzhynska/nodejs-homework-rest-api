@@ -7,7 +7,7 @@ const {
   updateStatusContact,
 } = require("./contacts");
 
-const {register, login, getCurrent, logout, updateUser } = require('./users')
+const {register, login, getCurrent, logout, updateUserSub, updateAvatar } = require('./users')
 
 module.exports = {
   getListContacts,
@@ -20,5 +20,6 @@ module.exports = {
   login,
   getCurrent,
   logout, 
-  updateUser
+  updateUserSub,
+  updateAvatar
 };
