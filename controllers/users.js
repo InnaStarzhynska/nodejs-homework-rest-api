@@ -7,8 +7,8 @@ const { updateUserSchema } = require("../schemas");
 const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs/promises");
-const { nanoid } = require('nanoid');
-const sendMail = require('../verification/emailVerification')
+const { nanoid } = require("nanoid");
+const sendMail = require("../verification/emailVerification");
 require("dotenv").config();
 
 const { SECRET_KEY, BASE_URL } = process.env;
@@ -36,16 +36,16 @@ const register = async (req, res, next) => {
       ...req.body,
       password: hashPassword,
       avatarURL,
-      verificationToken
+      verificationToken,
     });
 
     const verifyEmail = {
       to: email,
       subject: "Verify email",
-      html: `<a target='_blank' href=${BASE_URL}/api/users/verify/${verificationToken}>Click verify email </a>`
-    }
+      html: `<a target='_blank' href=${BASE_URL}/api/users/verify/${verificationToken}>Click verify email </a>`,
+    };
 
-  await sendMail(verifyEmail)
+    await sendMail(verifyEmail);
 
     res.status(201).json({
       user: {
@@ -61,26 +61,28 @@ const register = async (req, res, next) => {
 const verifyEmail = async (req, res, next) => {
   try {
     const { verificationToken } = req.params;
-  const user = await User.findOne({ verificationToken });
+    const user = await User.findOne({ verificationToken });
 
-  if (!user) {
-    throw HttpError(404, "User not Found");
-  }
+    if (!user) {
+      throw HttpError(404, "User not Found");
+    }
 
-  await User.findByIdAndUpdate(user._id, {verify: true, verificationToken: null})
+    await User.findByIdAndUpdate(user._id, {
+      verify: true,
+      verificationToken: null,
+    });
 
-  res.status(200).json({
-      message: 'Verification successful'
+    res.status(200).json({
+      message: "Verification successful",
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
+};
 
-}
-
-const resendVerifyEmail = async(req, res, next) => {
+const resendVerifyEmail = async (req, res, next) => {
   try {
-     const { error } = schemas.emailSchema.validate(req.body);
+    const { error } = schemas.emailSchema.validate(req.body);
     if (error) {
       throw HttpError(400, "Missing required field email");
     }
@@ -88,28 +90,27 @@ const resendVerifyEmail = async(req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-    throw HttpError(404, "User not Found");
+      throw HttpError(404, "User not Found");
     }
- 
+
     if (user.verify) {
       throw HttpError(404, "Verification has already been passed");
     }
     const verifyEmail = {
       to: email,
       subject: "Verify email",
-      html: `<a target='_blank' href=${BASE_URL}/api/users/verify/${user.verificationToken}>Click verify email </a>`
-    }
+      html: `<a target='_blank' href=${BASE_URL}/api/users/verify/${user.verificationToken}>Click verify email </a>`,
+    };
 
     await sendMail(verifyEmail);
 
     res.status(200).json({
-      message: "Verification email sent"
-    })
-  
-} catch (error) {
-  next(error)
-}
-}
+      message: "Verification email sent",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const login = async (req, res, next) => {
   try {
